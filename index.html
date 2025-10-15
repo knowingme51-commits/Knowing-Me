@@ -230,7 +230,7 @@
     loadNotes();
   };
 
-  const emotionImages={Ira:"ira-volcan.png", Miedo:"miedo-araña.png"};
+  const emotionImages={Ira:"Ira-volcan.png", Miedo:"miedo-araña.png"};
   function loadNotes(){
     const notes=JSON.parse(localStorage.getItem("notes")||"[]");
     const list=document.getElementById("notesList");
@@ -294,7 +294,7 @@
   loadScenario();
 
   // Juego Memoria
-  const emotions=[{img:"ira-volcan.png",name:"Ira"},{img:"miedo-araña.png",name:"Miedo"}];
+  const emotions=[{img:"Ira-volcan.png",name:"Ira"},{img:"miedo-araña.png",name:"Miedo"}];
   let cards=[],flipped=[],lockBoard=false;
   function startGame(){
     const board=document.getElementById("game-board");
