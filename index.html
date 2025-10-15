@@ -81,7 +81,7 @@
     <h2>📖 Agenda de Emociones</h2>
     <p>Cuéntame cómo te sentiste hoy:</p>
     <div class="emotion-row">
-      <button id="btnIra"><img src="ira-volcan.png" alt="Ira"> Ira</button>
+      <button id="btnIra"><img src="Ira-volcan.png" alt="Ira"> Ira</button>
       <button id="btnMiedo"><img src="miedo-araña.png" alt="Miedo"> Miedo</button>
     </div>
     <textarea id="agendaText" placeholder="Describe qué sucedió y cómo lo manejaste"></textarea>
@@ -127,7 +127,7 @@
         <span class="close" onclick="closeGame('game1')">&times;</span>
         <h2>Juego: ¿Ira o Miedo?</h2>
         <p class="scenario" id="scenario">Cargando...</p>
-        <button class="ira" onclick="answer('ira')"><img src="ira-volcan.png" alt="Ira"> Ira</button>
+        <button class="ira" onclick="answer('ira')"><img src="Ira-volcan.png" alt="Ira"> Ira</button>
         <button class="miedo" onclick="answer('miedo')"><img src="miedo-araña.png" alt="Miedo"> Miedo</button>
         <p id="result"></p>
         <button id="reiniciarGame1" class="save" style="display:none; margin-top:15px;">🔄 Repetir</button>
@@ -230,7 +230,7 @@
     loadNotes();
   };
 
-  const emotionImages={Ira:"Ira-volcan.png", Miedo:"miedo-araña.png"};
+  const emotionImages={Ira:"ira-volcan.png", Miedo:"miedo-araña.png"};
   function loadNotes(){
     const notes=JSON.parse(localStorage.getItem("notes")||"[]");
     const list=document.getElementById("notesList");
@@ -294,7 +294,7 @@
   loadScenario();
 
   // Juego Memoria
-  const emotions=[{img:"Ira-volcan.png",name:"Ira"},{img:"miedo-araña.png",name:"Miedo"}];
+  const emotions=[{img:"ira-volcan.png",name:"Ira"},{img:"miedo-araña.png",name:"Miedo"}];
   let cards=[],flipped=[],lockBoard=false;
   function startGame(){
     const board=document.getElementById("game-board");
@@ -405,4 +405,3 @@
 </script>
 </body>
 </html>
-
