@@ -103,7 +103,7 @@
       <h2>🎮 Juegos Disponibles</h2>
       <div class="apps-grid">
         <div class="app-icon" onclick="openGame('game1')">
-          <img src="ira-volcan.png" alt="¿Ira o Miedo?"> 
+          <img src="Ira-volcan.png" alt="¿Ira o Miedo?"> 
           <p>¿Ira o Miedo?</p>
         </div>
         <div class="app-icon" onclick="openGame('memory')">
@@ -230,7 +230,7 @@
     loadNotes();
   };
 
-  const emotionImages={Ira:"ira-volcan.png", Miedo:"miedo-araña.png"};
+  const emotionImages={Ira:"Ira-volcan.png", Miedo:"miedo-araña.png"};
   function loadNotes(){
     const notes=JSON.parse(localStorage.getItem("notes")||"[]");
     const list=document.getElementById("notesList");
@@ -294,7 +294,7 @@
   loadScenario();
 
   // Juego Memoria
-  const emotions=[{img:"ira-volcan.png",name:"Ira"},{img:"miedo-araña.png",name:"Miedo"}];
+  const emotions=[{img:"Ira-volcan.png",name:"Ira"},{img:"miedo-araña.png",name:"Miedo"}];
   let cards=[],flipped=[],lockBoard=false;
   function startGame(){
     const board=document.getElementById("game-board");
@@ -405,3 +405,4 @@
 </script>
 </body>
 </html>
+
