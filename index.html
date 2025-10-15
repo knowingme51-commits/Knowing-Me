@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mis emociones</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {margin:0; font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#f0f4f8,#e3f2fd); color:#333;}
+    header {background:url("fondo-header.jpg") no-repeat center center/cover; color:#fff; padding:40px 20px; text-align:center; border-bottom:4px solid #333; position: relative;}
+    header h1 {margin:0; font-size:2.4rem;}
+    .header-img {position: absolute; top: 10px; left: 10px; width: 250px; height: auto;}
+    nav {background:#333; padding:14px 0; display:flex; justify-content:center; gap:16px;}
+    nav button {background:#1976d2; color:white; border:none; padding:10px 18px; border-radius:10px; cursor:pointer; transition:0.3s;}
+    nav button:hover {background:#0d47a1;}
+    .container {max-width:1100px; margin:30px auto; padding:0 18px;}
+    .section {display:none; background:#fff; border-radius:14px; padding:26px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin-bottom:24px; animation:fadeIn 0.6s;}
+    .section.active {display:block;}
+    h2 {margin-top:0; color:#1a237e;}
+    @keyframes fadeIn {from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+
+    /* Agenda */
+    .emotion-row {display:flex; gap:12px; margin-bottom:12px;}
+    .emotion-row button {flex:1; padding:12px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; gap:6px;}
+    #btnIra {background:#e63946; color:white;} #btnIra:hover {background:#c62828;}
+    #btnMiedo {background:#42a5f5; color:white;} #btnMiedo:hover {background:#1565c0;}
+    textarea {width:100%; min-height:100px; margin:12px 0; border-radius:8px; border:1px solid #ccc; padding:10px;}
+    .save {background:#43a047; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;}
+    .notes-list {margin-top:20px;}
+    .note {padding:12px; margin-bottom:10px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+    .note.ira {border-left:6px solid #e63946;}
+    .note.miedo {border-left:6px solid #42a5f5;}
+    .note span {font-weight:bold;}
+    .note .emoji img {width:24px; height:24px; margin-right:6px; vertical-align:middle;}
+
+    /* Progreso */
+    #progressChart {background:#fff; border-radius:14px; padding:20px; box-shadow:0 6px 18px rgba(0,0,0,0.08);}
+
+    /* Juegos */
+    .game-container {background:#fff; padding:20px; border-radius:10px; margin:0 auto 30px auto; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+    .apps-grid {display:flex; gap:20px; justify-content:center; margin-top:20px;}
+    .app-icon {width:120px; cursor:pointer; text-align:center; background:#fff; padding:10px; border-radius:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition:0.3s;}
+    .app-icon img {width:80px; height:80px; border-radius:16px;}
+    .app-icon p {margin-top:8px; font-weight:bold; color:#333;}
+    .app-icon:hover {transform:translateY(-5px); box-shadow:0 8px 20px rgba(0,0,0,0.15);}
+    .modal {display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;}
+    .modal-content {background:#fff; padding:20px; border-radius:14px; max-width:500px; width:90%; position:relative; text-align:center; box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+    .close {position:absolute; top:10px; right:14px; font-size:28px; font-weight:bold; cursor:pointer;}
+    .close:hover {color:#e63946;}
+
+    /* Memoria */
+    .board {display:grid; grid-template-columns:repeat(4,100px); gap:15px; justify-content:center; margin:20px 0;}
+    .card {width:100px; height:100px; background:#1976d2; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:2rem; color:transparent; cursor:pointer; transition:0.3s;}
+    .card.flipped, .card.matched {background:#fff; border:2px solid #1976d2;}
+    .card img {width:60px; height:60px; display:none;}
+    .card.flipped img, .card.matched img {display:block;}
+
+    /* Respiración */
+    .breath-container {text-align:center; margin-top:20px;}
+    #breathCircle {width:180px; height:180px; border-radius:50%; margin:20px auto; background:#42a5f5; display:flex; justify-content:center; align-items:center; font-size:2rem; color:#fff; transition:0.5s;}
+    .breath-instruction {font-size:1.2rem; margin-top:12px;}
+    #startBreath {margin-top:15px;}
+  </style>
+</head>
+<body>
+<header>
+  <h1>🌈 Mis emociones</h1>
+  <p>Aprendamos juntos a reconocer cómo nos sentimos</p>
+  <img src="volcan-enojado.png" alt="Volcán enojado" class="header-img">
+</header>
+
+<nav>
+  <button onclick="showSection('juegos')">🎮 Juegos</button>
+  <button onclick="showSection('agenda')">📓 Agenda</button>
+  <button onclick="showSection('progreso')">📊 Progreso</button>
+</nav>
+
+<div class="container">
+  <!-- Agenda -->
+  <section id="agenda" class="section active">
+    <h2>📖 Agenda de Emociones</h2>
+    <p>Cuéntame cómo te sentiste hoy:</p>
+    <div class="emotion-row">
+      <button id="btnIra"><img src="ira-volcan.png" alt="Ira"> Ira</button>
+      <button id="btnMiedo"><img src="miedo-araña.png" alt="Miedo"> Miedo</button>
+    </div>
+    <textarea id="agendaText" placeholder="Describe qué sucedió y cómo lo manejaste"></textarea>
+    <br>
+    <button id="saveBtn" class="save">Guardar</button>
+    <h3 style="margin-top:20px">📝 Notas anteriores</h3>
+    <div id="notesList" class="notes-list"></div>
+  </section>
+
+  <!-- Progreso -->
+  <section id="progreso" class="section">
+    <h2>📊 Progreso Mensual</h2>
+    <canvas id="progressChart"></canvas>
+  </section>
+
+  <!-- Juegos -->
+  <section id="juegos" class="section">
+    <div class="game-container">
+      <h2>🎮 Juegos Disponibles</h2>
+      <div class="apps-grid">
+        <div class="app-icon" onclick="openGame('game1')">
+          <img src="ira-volcan.png" alt="¿Ira o Miedo?"> 
+          <p>¿Ira o Miedo?</p>
+        </div>
+        <div class="app-icon" onclick="openGame('memory')">
+          <img src="miedo-araña.png" alt="Juego de Memoria"> 
+          <p>Juego de Memoria</p>
+        </div>
+        <div class="app-icon" onclick="openGame('breath')">
+          <img src="Tranquilidad.png" alt="Respiración"> 
+          <p>Respiración 4-7-8</p>
+        </div>
+        <div class="app-icon" onclick="openGame('music')">
+          <img src="Abrazon-Relajante.png" alt="Música Relajante">
+          <p>Música Relajante</p>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modal Juego 1: ¿Ira o Miedo? -->
+    <div id="game1" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeGame('game1')">&times;</span>
+        <h2>Juego: ¿Ira o Miedo?</h2>
+        <p class="scenario" id="scenario">Cargando...</p>
+        <button class="ira" onclick="answer('ira')"><img src="ira-volcan.png" alt="Ira"> Ira</button>
+        <button class="miedo" onclick="answer('miedo')"><img src="miedo-araña.png" alt="Miedo"> Miedo</button>
+        <p id="result"></p>
+        <button id="reiniciarGame1" class="save" style="display:none; margin-top:15px;">🔄 Repetir</button>
+      </div>
+    </div>
+
+    <!-- Modal Juego Memoria -->
+    <div id="memory" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeGame('memory')">&times;</span>
+        <h2>Juego de Memoria</h2>
+        <div id="game-board" class="board"></div>
+        <p id="message"></p>
+        <button id="reiniciarMemory" class="save" style="display:none; margin-top:15px;">🔄 Repetir</button>
+      </div>
+    </div>
+
+    <!-- Modal Respiración -->
+    <div id="breath" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeGame('breath')">&times;</span>
+        <h2>Respiración 4-7-8</h2>
+        <div class="breath-container">
+          <div id="countdownStart" style="font-size:2rem; margin-bottom:10px;"></div>
+          <div id="breathCircle">0</div>
+          <div class="breath-instruction" id="breathInstruction">Presiona "Empezamos"</div>
+          <button id="startBreath" class="save">Empezamos</button>
+          <button id="restartBreath" class="save" style="display:none; margin-top:10px;">🔄 Repetir</button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+
+<!-- 🎵 Modal del juego Música Relajante -->
+<div id="music" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeGame('music')">&times;</span>
+
+    <img src="Abrazon-Relajante.png" alt="Música Relajante" 
+         style="width:140px; display:block; margin:0 auto 15px auto; border-radius:50%; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+
+    <h2 style="text-align:center; color:#1976d2;">🎵 Música Relajante</h2>
+    <p style="text-align:center; color:#555;">🍃Relájate, cierra los ojos y siente tu respiración🍃</p>
+
+    <audio id="relaxMusic" loop>
+      <source src="Musica-Relajante.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="music-buttons" style="display:flex; justify-content:center; gap:15px; margin-top:20px;">
+      <button class="music-btn" onclick="playMusic()" 
+              style="background:#42a5f5; color:white; border:none; padding:12px 25px; border-radius:12px; font-size:1rem; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:0.3s;">
+        🎵 Empezar
+      </button>
+      <button class="music-btn pause" onclick="pauseMusic()" 
+              style="background:#ef5350; color:white; border:none; padding:12px 25px; border-radius:12px; font-size:1rem; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:0.3s;">
+        ⏸️ Pausar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Cambiar secciones
+  function showSection(id){
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    if(id==="progreso") renderChart();
+  }
+
+  // Agenda
+  let selectedEmotion="";
+  const agendaText=document.getElementById("agendaText");
+  const saveBtn=document.getElementById("saveBtn");
+
+  document.getElementById("btnIra").onclick = () => {
+    selectedEmotion="Ira";
+    agendaText.style.background="rgba(230,57,70,0.3)";
+    saveBtn.style.background="#e63946";
+  };
+  document.getElementById("btnMiedo").onclick = () => {
+    selectedEmotion="Miedo";
+    agendaText.style.background="rgba(66,165,245,0.3)";
+    saveBtn.style.background="#42a5f5";
+  };
+
+  saveBtn.onclick = () => {
+    const text = agendaText.value;
+    if(!selectedEmotion || !text.trim()) return;
+    const date=new Date().toLocaleDateString();
+    const note={emotion:selectedEmotion, text, date};
+    let notes=JSON.parse(localStorage.getItem("notes")||"[]");
+    notes.push(note);
+    localStorage.setItem("notes",JSON.stringify(notes));
+    agendaText.value="";
+    selectedEmotion="";
+    agendaText.style.background="#fff";
+    saveBtn.style.background="#43a047";
+    loadNotes();
+  };
+
+  const emotionImages={Ira:"ira-volcan.png", Miedo:"miedo-araña.png"};
+  function loadNotes(){
+    const notes=JSON.parse(localStorage.getItem("notes")||"[]");
+    const list=document.getElementById("notesList");
+    list.innerHTML="";
+    notes.forEach(n=>{
+      const div=document.createElement("div");
+      div.className="note "+(n.emotion==="Ira"?"ira":"miedo");
+      div.style.background=n.emotion==="Ira"?"rgba(230,57,70,0.2)":"rgba(66,165,245,0.2)";
+      div.innerHTML=`<div><span>${n.date}</span><br>${n.text}</div>
+                     <div class="emoji"><img src="${emotionImages[n.emotion]}" alt="${n.emotion}"> ${n.emotion}</div>`;
+      list.appendChild(div);
+    });
+  }
+  loadNotes();
+
+  // Progreso
+  let chart;
+  function renderChart(){
+    const notes=JSON.parse(localStorage.getItem("notes")||"[]");
+    let ira=0, miedo=0;
+    notes.forEach(n=>{if(n.emotion==="Ira") ira++; if(n.emotion==="Miedo") miedo++;});
+    const ctx=document.getElementById("progressChart").getContext("2d");
+    if(chart) chart.destroy();
+    chart=new Chart(ctx,{
+      type:"bar",
+      data:{labels:["Ira","Miedo"],datasets:[{label:"Emociones registradas",data:[ira,miedo], backgroundColor:["rgba(230,57,70,0.7)","rgba(66,165,245,0.7)"], borderColor:["#e63946","#42a5f5"],borderWidth:2}]},
+      options:{plugins:{legend:{labels:{font:{size:14},color:"#333"}}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}}}
+    });
+  }
+
+  // Juego 1 - Ira o Miedo
+  const scenarios=[{text:"Alguien rompe tu cuaderno a propósito.",answer:"ira"},{text:"Escuchas un ruido extraño en la oscuridad.",answer:"miedo"},{text:"Un compañero se burla de ti frente a los demás.",answer:"ira"},{text:"Te quedas solo en una casa grande y oyes pasos.",answer:"miedo"},{text:"Un amigo empuja tu trabajo escolar al piso.",answer:"ira"},{text:"Ves una araña muy cerca de ti.",answer:"miedo"},{text:"Pierdes un juego y alguien se ríe de ti.",answer:"ira"},{text:"Se apagan todas las luces de repente.",answer:"miedo"}];
+  let index=0;
+  function loadScenario(){
+    if(index<scenarios.length){
+      document.getElementById("scenario").textContent=scenarios[index].text;
+      document.getElementById("result").textContent="";
+    }else{
+      document.getElementById("scenario").textContent="🎉 ¡Juego terminado!";
+      document.getElementById("result").textContent="";
+      document.getElementById("reiniciarGame1").style.display="block";
+    }
+  }
+  function answer(choice){
+    if(index<scenarios.length){
+      if(choice===scenarios[index].answer){
+        document.getElementById("result").textContent="✅ ¡Correcto!";
+        document.getElementById("result").style.color="green";
+        setTimeout(()=>{index++; loadScenario();},800);
+      }else{
+        document.getElementById("result").textContent="❌ Incorrecto";
+        document.getElementById("result").style.color="red";
+      }
+    }
+  }
+  document.getElementById("reiniciarGame1").onclick=()=>{
+    index=0;
+    document.getElementById("reiniciarGame1").style.display="none";
+    loadScenario();
+  }
+  loadScenario();
+
+  // Juego Memoria
+  const emotions=[{img:"ira-volcan.png",name:"Ira"},{img:"miedo-araña.png",name:"Miedo"}];
+  let cards=[],flipped=[],lockBoard=false;
+  function startGame(){
+    const board=document.getElementById("game-board");
+    board.innerHTML="";
+    cards=[...emotions,...emotions,...emotions,...emotions].sort(()=>0.5-Math.random());
+    cards.forEach((c,i)=>{
+      const d=document.createElement("div");
+      d.classList.add("card"); d.dataset.index=i;
+      d.innerHTML=`<img src="${c.img}" alt="${c.name}">`;
+      d.addEventListener("click",flipCard);
+      board.appendChild(d);
+    });
+    document.getElementById("reiniciarMemory").style.display="none";
+  }
+  function flipCard(){
+    if(lockBoard) return;
+    if(this.classList.contains("flipped")||this.classList.contains("matched")) return;
+    this.classList.add("flipped");
+    flipped.push(this);
+    if(flipped.length===2){lockBoard=true; setTimeout(checkMatch,800);}
+  }
+  function checkMatch(){
+    const[f,s]=flipped;
+    if(cards[f.dataset.index].name===cards[s.dataset.index].name){
+      f.classList.add("matched"); s.classList.add("matched");
+      if(document.querySelectorAll(".card.matched").length===cards.length){
+        document.getElementById("reiniciarMemory").style.display="block";
+      }
+    }else{f.classList.remove("flipped"); s.classList.remove("flipped");}
+    flipped=[]; lockBoard=false;
+  }
+  document.getElementById("reiniciarMemory").onclick=startGame;
+  startGame();
+
+  // Juegos modales
+  function openGame(id){document.getElementById(id).style.display="flex";}
+  function closeGame(id){document.getElementById(id).style.display="none";}
+
+  // Respiración 4-7-8
+  const breathCircle=document.getElementById("breathCircle");
+  const breathInstruction=document.getElementById("breathInstruction");
+  const startBreath=document.getElementById("startBreath");
+  const restartBreath=document.getElementById("restartBreath");
+  const countdownStart=document.getElementById("countdownStart");
+  let breathInterval, breathCycle=0;
+
+  function startBreathingGame(){
+    startBreath.style.display="none";
+    countdownStart.textContent="Empezamos en: 5";
+    let countdown=5;
+    const cInterval=setInterval(()=>{
+      countdown--;
+      countdownStart.textContent="Empezamos en: "+countdown;
+      if(countdown===0){
+        clearInterval(cInterval);
+        countdownStart.textContent="";
+        breathCycle=0;
+        startBreathCycle();
+      }
+    },1000);
+  }
+
+  function startBreathCycle(){
+    const sequence=[{text:"Inhala",sec:4,color:"#42a5f5"},{text:"Mantén",sec:7,color:"#1565c0"},{text:"Exhala",sec:8,color:"#42a5f5"}];
+    if(breathCycle>=3){
+      breathInstruction.textContent="🎉 ¡Listo!";
+      breathCircle.textContent="0";
+      restartBreath.style.display="block";
+      return;
+    }
+    let step=0;
+    function nextStep(){
+      if(step<sequence.length){
+        breathInstruction.textContent=sequence[step].text;
+        let t=sequence[step].sec;
+        breathCircle.textContent=t;
+        breathCircle.style.background=sequence[step].color;
+        breathInterval=setInterval(()=>{
+          t--;
+          breathCircle.textContent=t;
+          if(t<=0){
+            clearInterval(breathInterval);
+            step++;
+            nextStep();
+          }
+        },1000);
+      }else{
+        breathCycle++;
+        startBreathCycle();
+      }
+    }
+    nextStep();
+  }
+
+  startBreath.onclick=startBreathingGame;
+  restartBreath.onclick=()=>{
+    restartBreath.style.display="none";
+    startBreath.style.display="block";
+    breathCircle.textContent="0";
+    breathInstruction.textContent="Presiona 'Empezamos'";
+  }
+
+  // Música Relajante
+  const relaxMusic = document.getElementById("relaxMusic");
+  function playMusic(){ relaxMusic.play(); }
+  function pauseMusic(){ relaxMusic.pause(); }
+
+</script>
+</body>
+</html>
